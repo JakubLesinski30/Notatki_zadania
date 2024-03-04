@@ -19,9 +19,12 @@ document.addEventListener("DOMContentLoaded", function() {
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 var notatki = JSON.parse(xhr.responseText);
+                notatki.sort(function(a, b) {
+                    return a.id - b.id;
+                });
                 var listaNotatek = document.getElementById("listaNotatek");
                 listaNotatek.innerHTML = "";
-                notatki.reverse().forEach(function(notatka) {
+                notatki.forEach(function(notatka) {
                     var pozycjaListy = document.createElement("li");
                     pozycjaListy.className = "list-group-item";
                     pozycjaListy.textContent = notatka.tresc;
@@ -47,9 +50,12 @@ document.addEventListener("DOMContentLoaded", function() {
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 var zadania = JSON.parse(xhr.responseText);
+                zadania.sort(function(a, b) {
+                    return a.id - b.id;
+                });
                 var listaZadan = document.getElementById("listaZadan");
                 listaZadan.innerHTML = "";
-                zadania.reverse().forEach(function(zadanie) {
+                zadania.forEach(function(zadanie) {
                     var pozycjaListy = document.createElement("li");
                     pozycjaListy.className = "list-group-item";
                     pozycjaListy.textContent = zadanie.tresc;
@@ -116,5 +122,5 @@ document.addEventListener("DOMContentLoaded", function() {
         };
         xhr.open("DELETE", "/zadania/" + idZadania, true);
         xhr.send();
-    }
+    }   
 });
