@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+
+import Notatki_zadania.Rejestracja_logowanie.Uzytkownik;
+import Notatki_zadania.Rejestracja_logowanie.UzytkownikRepozytorium;
 
 @RestController
 public class NotatkiZadaniaKontroler {
@@ -17,33 +21,48 @@ public class NotatkiZadaniaKontroler {
     @Autowired
     private ZadaniaRepozytorium zadaniaRepozytorium;
 
+    @Autowired
+    private UzytkownikRepozytorium uzytkownikRepozytorium;
+
     @GetMapping("/notatki")
-    public Iterable<Notatki> getWszystkieNotatki() {
-        return notatkiRepozytorium.findAll();
+    public Iterable<Notatki> getMojeNotatki(Authentication authentication) {
+        String userEmail = authentication.getName();
+        return notatkiRepozytorium.findByUzytkownikEmail(userEmail);
     }
 
     @PostMapping("/notatki")
-    public Notatki dodajNotatke(@RequestBody Notatki notatka) {
+    public Notatki dodajNotatke(@RequestBody Notatki notatka, Authentication authentication) {
+        String userEmail = authentication.getName();
+        Uzytkownik uzytkownik = uzytkownikRepozytorium.findByEmail(userEmail);
+        notatka.setUzytkownik(uzytkownik);
         return notatkiRepozytorium.save(notatka);
     }
 
     @DeleteMapping("/notatki/{id}")
-    public void usunNotatke(@PathVariable Long id) {
-        notatkiRepozytorium.deleteById(id);
+    public void usunNotatke(@PathVariable Long id, Authentication authentication) {
+        String userEmail = authentication.getName();
+        Uzytkownik uzytkownik = uzytkownikRepozytorium.findByEmail(userEmail);
+        notatkiRepozytorium.deleteByIdAndUzytkownik(id, uzytkownik);
     }
 
     @GetMapping("/zadania")
-    public Iterable<Zadania> getWszystkieZadania() {
-        return zadaniaRepozytorium.findAll();
+    public Iterable<Zadania> getMojeZadania(Authentication authentication) {
+        String userEmail = authentication.getName();
+        return zadaniaRepozytorium.findByUzytkownikEmail(userEmail);
     }
 
     @PostMapping("/zadania")
-    public Zadania dodajZadanie(@RequestBody Zadania zadanie) {
+    public Zadania dodajZadanie(@RequestBody Zadania zadanie, Authentication authentication) {
+        String userEmail = authentication.getName();
+        Uzytkownik uzytkownik = uzytkownikRepozytorium.findByEmail(userEmail);
+        zadanie.setUzytkownik(uzytkownik);
         return zadaniaRepozytorium.save(zadanie);
     }
 
     @DeleteMapping("/zadania/{id}")
-    public void usunZadanie(@PathVariable Long id) {
-        zadaniaRepozytorium.deleteById(id);
+    public void usunZadanie(@PathVariable Long id, Authentication authentication) {
+        String userEmail = authentication.getName();
+        Uzytkownik uzytkownik = uzytkownikRepozytorium.findByEmail(userEmail);
+        zadaniaRepozytorium.deleteByIdAndUzytkownik(id, uzytkownik);
     }
 }
