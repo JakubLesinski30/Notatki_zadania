@@ -24,17 +24,25 @@ public class NotatkiZadaniaKontroler {
     @Autowired
     private UzytkownikRepozytorium uzytkownikRepozytorium;
 
+    @Autowired
+    private Szyfrowanie szyfrowanie;
+
     @GetMapping("/notatki")
-    public Iterable<Notatki> getMojeNotatki(Authentication authentication) {
+    public Iterable<Notatki> getMojeNotatki(Authentication authentication) throws Exception {
         String userEmail = authentication.getName();
-        return notatkiRepozytorium.findByUzytkownikEmail(userEmail);
+        Iterable<Notatki> notatki = notatkiRepozytorium.findByUzytkownikEmail(userEmail);
+        for (Notatki notatka : notatki) {
+            notatka.setTresc(szyfrowanie.deszyfruj(notatka.getTresc()));
+        }
+        return notatki;
     }
 
     @PostMapping("/notatki")
-    public Notatki dodajNotatke(@RequestBody Notatki notatka, Authentication authentication) {
+    public Notatki dodajNotatke(@RequestBody Notatki notatka, Authentication authentication) throws Exception {
         String userEmail = authentication.getName();
         Uzytkownik uzytkownik = uzytkownikRepozytorium.findByEmail(userEmail);
         notatka.setUzytkownik(uzytkownik);
+        notatka.setTresc(szyfrowanie.szyfruj(notatka.getTresc()));
         return notatkiRepozytorium.save(notatka);
     }
 
@@ -46,16 +54,21 @@ public class NotatkiZadaniaKontroler {
     }
 
     @GetMapping("/zadania")
-    public Iterable<Zadania> getMojeZadania(Authentication authentication) {
+    public Iterable<Zadania> getMojeZadania(Authentication authentication) throws Exception {
         String userEmail = authentication.getName();
-        return zadaniaRepozytorium.findByUzytkownikEmail(userEmail);
+        Iterable<Zadania> zadania = zadaniaRepozytorium.findByUzytkownikEmail(userEmail);
+        for (Zadania zadanie : zadania) {
+            zadanie.setTresc(szyfrowanie.deszyfruj(zadanie.getTresc()));
+        }
+        return zadania;
     }
 
     @PostMapping("/zadania")
-    public Zadania dodajZadanie(@RequestBody Zadania zadanie, Authentication authentication) {
+    public Zadania dodajZadanie(@RequestBody Zadania zadanie, Authentication authentication) throws Exception {
         String userEmail = authentication.getName();
         Uzytkownik uzytkownik = uzytkownikRepozytorium.findByEmail(userEmail);
         zadanie.setUzytkownik(uzytkownik);
+        zadanie.setTresc(szyfrowanie.szyfruj(zadanie.getTresc()));
         return zadaniaRepozytorium.save(zadanie);
     }
 
